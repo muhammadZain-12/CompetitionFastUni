@@ -1,232 +1,244 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import React, {cloneElement} from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
+  Dimensions,
+  Image,
   StyleSheet,
-  KeyboardAvoidingView,
+  Text,
+  View,
   TextInput,
-  Alert,
-  ToastAndroid,
-  ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
-import BaseUrl from '../config/BaseUrl';
+import React, {useState} from 'react';
+import Color from '../constant/Colors';
+import Icon from 'react-native-vector-icons/Ionicons';
 
-function Login({navigation}) {
-  const initialData = {
+const Login = ({navigation}) => {
+  const [passwordEye, setPasswordEye] = useState(true);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loginFields, setLoginFields] = useState({
     email: '',
     password: '',
-  };
-
-  const [loginData, setLoginData] = React.useState(initialData);
-  const [password, setPassword] = React.useState({
-    inputPasswordActive: false,
-    showPassword: false,
   });
-  const [isLoading, setIsLoading] = React.useState(false);
-
-  console.log(BaseUrl);
-
-  const checkUserToLogin = () => {
-    if (!loginData.email) {
-      ToastAndroid.show('Email is required', ToastAndroid.SHORT);
-      return;
-    }
-    if (!loginData.password) {
-      ToastAndroid.show('Password is required', ToastAndroid.SHORT);
-      return;
-    }
-    setIsLoading(true);
-    axios
-      .post(`${BaseUrl}/login`, loginData)
-      .then(({data}) => {
-        setIsLoading(false);
-        console.log(data);
-        console.log(data.message);
-
-        if (!data.status) {
-          Alert.alert('Error Alert', data.message);
-        } else {
-          ToastAndroid.show('Successfully Login', ToastAndroid.SHORT);
-          if (data.data.category == 'police') {
-            RouteToAdmin(data, 'police');
-            return;
-          }
-          if (data.data.category == 'ambulance') {
-            RouteToAdmin(data, 'ambulance');
-            return;
-          }
-          if (data.data.category == 'fireBrigade') {
-            RouteToAdmin(data, 'fireBrigade');
-            return;
-          } else {
-            RouteToUser(data);
-          }
-        }
-      })
-      .catch(error => {
-        setIsLoading(false);
-        console.log(error);
-      });
-  };
-
-  const passwordShowHideIcon = () => {
-    if (!password.showPassword) {
-      setPassword({...password, showPassword: true});
-    } else {
-      setPassword({...password, showPassword: false});
-    }
-  };
 
   return (
-    <View>
-      <KeyboardAvoidingView enabled>
-        <View style={styles.container}>
-          <Text style={styles.heading}>Welcome,</Text>
-          <Text style={styles.text}>Sign in to continue!</Text>
-
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="email"
-              placeholderTextColor="gray"
-              onChangeText={e => setLoginData({...loginData, email: e})}
-              value={loginData.email}
-            />
-            <View
-              style={{
-                flexDirection: 'row',
-                width: '97%',
-                borderWidth: 1,
-                borderColor: 'gray',
-                marginTop: 10,
-                borderRadius: 10,
-                alignItems: 'center',
-              }}
-            >
-              <TextInput
-                style={[
-                  styles.input,
-                  {marginTop: 0, borderWidth: 0, width: '90%'},
-                ]}
-                placeholder="password"
-                placeholderTextColor="gray"
-                secureTextEntry={password.showPassword ? false : true}
-                onChangeText={e => setLoginData({...loginData, password: e})}
-                value={loginData.password}
-                onPressIn={() =>
-                  setPassword({...password, inputPasswordActive: true})
-                }
-                onBlur={() =>
-                  setPassword({...password, inputPasswordActive: false})
-                }
+    <View
+      style={{
+        backgroundColor: Color.backgroundColor,
+        height: Dimensions.get('window').height,
+        paddingHorizontal: 10,
+      }}
+    >
+      <View style={{alignItems: 'center'}}>
+        <Image
+          source={require('../../Images/ColorLogo.png')}
+          resizeMode="contain"
+          style={styles.logo}
+        />
+      </View>
+      <View style={{alignItems: 'center'}}>
+        <Text
+          style={{
+            color: Color.textColor,
+            fontSize: 30,
+            fontFamily: 'Poppins-SemiBold',
+          }}
+        >
+          Log
+          <Text
+            style={{
+              color: Color.mainColor,
+              fontSize: 30,
+              fontFamily: 'Poppins-SemiBold',
+            }}
+          >
+            in
+          </Text>
+        </Text>
+      </View>
+      {/* Email */}
+      <View style={{marginHorizontal: 5, marginVertical: 5}}>
+        <Text
+          style={{
+            fontFamily: 'Poppins-Regular',
+            color: Color.textColor,
+            fontSize: 16,
+            fontWeight: 'bold',
+          }}
+        >
+          Email
+        </Text>
+      </View>
+      <View
+        style={{
+          width: Dimensions.get('window').width / 1.1,
+          borderWidth: 1,
+          borderRadius: 10,
+          marginHorizontal: 5,
+        }}
+      >
+        <TextInput
+          placeholder="Email"
+          onChangeText={e => setLoginFields({...loginFields, email: e})}
+          style={{width: Dimensions.get('window').width / 1.21, padding: 12}}
+        />
+      </View>
+      {/* Password */}
+      <View style={{marginHorizontal: 5, marginVertical: 5}}>
+        <Text
+          style={{
+            fontFamily: 'Poppins-Regular',
+            color: Color.textColor,
+            fontSize: 16,
+            fontWeight: 'bold',
+          }}
+        >
+          Password
+        </Text>
+      </View>
+      <View
+        style={{
+          width: Dimensions.get('window').width / 1.1,
+          borderWidth: 1,
+          borderRadius: 10,
+          marginHorizontal: 5,
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}
+      >
+        <TextInput
+          placeholder="Password"
+          secureTextEntry={passwordEye ? true : false}
+          onChangeText={e => setLoginFields({...loginFields, password: e})}
+          style={{width: Dimensions.get('window').width / 1.21, padding: 12}}
+        />
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => setPasswordEye(!passwordEye)}
+        >
+          <Text>
+            {passwordEye ? (
+              <Icon name="eye" size={25} color="black" />
+            ) : (
+              <Icon name="eye-off" size={25} color="black" />
+            )}
+          </Text>
+        </TouchableOpacity>
+      </View>
+      {/* remember me and forgot */}
+      <View
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          marginHorizontal: 10,
+          marginVertical: 10,
+        }}
+      >
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 3,
+          }}
+        >
+          <TouchableOpacity
+            style={{width: 14, height: 14, borderWidth: 1, borderRadius: 5}}
+            onPress={() => setRememberMe(!rememberMe)}
+          >
+            {rememberMe ? (
+              <Icon
+                name="md-checkmark-sharp"
+                size={11}
+                color="white"
+                style={{backgroundColor: Color.mainColor}}
               />
-              {password.inputPasswordActive && (
-                <TouchableOpacity onPress={passwordShowHideIcon}>
-                  <Icon
-                    name={!password.showPassword ? 'eye' : 'eye-off'}
-                    size={25}
-                    color="black"
-                  />
-                </TouchableOpacity>
-              )}
-            </View>
-            <TouchableOpacity style={{width: '100%', marginTop: 5}}>
-              <Text
-                style={[
-                  styles.text,
-                  {
-                    fontSize: 14,
-                    textAlign: 'right',
-                    width: '97%',
-                    color: 'black',
-                  },
-                ]}
-              >
-                Forgot password?
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              onPress={checkUserToLogin}
-              style={styles.touchableOpacity}
+            ) : (
+              ''
+            )}
+          </TouchableOpacity>
+          <Text
+            style={{color: Color.mainColor, fontFamily: 'Poppins-SemiBold'}}
+          >
+            Remember
+          </Text>
+        </View>
+        <View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ForgotPassword')}
+          >
+            <Text
+              style={{color: Color.mainColor, fontFamily: 'Poppins-SemiBold'}}
             >
-              {isLoading ? (
-                <ActivityIndicator color="black" size="large" />
-              ) : (
-                <Text
-                  style={[styles.text, {textAlign: 'center', color: 'black'}]}
-                >
-                  Login
-                </Text>
-              )}
-            </TouchableOpacity>
-            <View
+              Forgot Password
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      {/* Login Button */}
+      <View
+        style={{
+          width: Dimensions.get('window').width / 1.1,
+          borderWidth: 1,
+          borderRadius: 5,
+          marginHorizontal: 5,
+          marginVertical: 20,
+        }}
+      >
+        <TouchableOpacity
+          style={{
+            alignItems: 'center',
+            padding: 10,
+            backgroundColor: Color.mainColor,
+          }}
+        >
+          <Text
+            style={{
+              color: 'white',
+              fontSize: 18,
+              fontFamily: 'Poppins-Regular',
+            }}
+          >
+            Login
+          </Text>
+        </TouchableOpacity>
+      </View>
+      {/* Don't Have Account */}
+      <View style={{alignItems: 'center'}}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('SignUp')}
+        >
+          <Text
+            style={{
+              color: Color.textColor,
+              fontSize: 15,
+              fontFamily: 'Poppins-Regular',
+            }}
+          >
+            Don’t have an Account?
+            <Text
               style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                marginTop: 10,
+                color: Color.mainColor,
+                fontSize: 15,
+                fontFamily: 'Poppins-SemiBold',
               }}
             >
-              <Text style={styles.text}> Don't have an account?</Text>
-              <TouchableOpacity onPress={() => navigation.navigate('signUp')}>
-                <Text style={[styles.text, {color: '#a8aada'}]}> SignUp </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </KeyboardAvoidingView>
+              {' '}
+              Sign up
+            </Text>
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
-}
+};
 
 export default Login;
 
 const styles = StyleSheet.create({
-  heading: {
-    fontSize: 30,
-    color: 'black',
-    fontWeight: '700',
-    marginTop: 80,
-  },
-  container: {
-    width: '100%',
-    height: '100%',
-    padding: 20,
-  },
-  text: {
-    fontSize: 18,
-    color: 'gray',
-    fontWeight: '500',
-  },
-  input: {
-    width: '97%',
-    color: 'black',
-    borderWidth: 1,
-    borderColor: 'gray',
-    marginTop: 10,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-  },
-  inputContainer: {
-    marginTop: 50,
-    alignItems: 'center',
-  },
-  buttonContainer: {
-    width: '100%',
-    alignItems: 'center',
-    marginTop: 40,
-  },
-  touchableOpacity: {
-    width: '97%',
-    backgroundColor: '#a8aada',
-    borderRadius: 10,
-    borderWidth: 1,
-    padding: 10,
+  logo: {
+    height: Dimensions.get('window').height / 6,
+    width: Dimensions.get('window').width / 1.4,
   },
 });
