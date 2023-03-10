@@ -5,4 +5,5 @@ export default {
     textColor:'#4D4D4D',
     backgroundColor:'#FFFFFF',
     transparent: 'transparent',
+    black : "#000",
 };

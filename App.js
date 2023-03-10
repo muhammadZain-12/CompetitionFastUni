@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -9,15 +9,22 @@ import {
   View,
 } from 'react-native';
 import AppNavigation from './android/app/src/config/AppNavigation';
-
+import {PermissionsAndroid} from 'react-native';
 
 function App() {
-  return (
-    <AppNavigation/>
-  );
+  useEffect(() => {
+    PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+    )
+      .then(yes => {
+        console.log('yes', yes);
+      })
+      .catch(er => console.log('er', er));
+  }, []);
+  return <AppNavigation />;
 }
 
-export default App
+export default App;
 
 const styles = StyleSheet.create({
   sectionContainer: {
@@ -37,5 +44,3 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
-
-
